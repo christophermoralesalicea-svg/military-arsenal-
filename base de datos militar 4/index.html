@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enciclopedia Aeroespacial y Tecnológica - Feria de Ciencias</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        military: {
+                            50: '#f2f4f2',
+                            100: '#e5e9e5',
+                            200: '#cbd4cc',
+                            300: '#a3b2a3',
+                            400: '#758a74',
+                            500: '#536952',
+                            600: '#415240',
+                            700: '#354334',
+                            800: '#2c372b',
+                            900: '#242e23',
+                            950: '#141a14',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #0b0f0b;
+            color: #d1d5db;
+        }
+        .mono-font {
+            font-family: 'Share Tech Mono', monospace;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #141a14;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #354334;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #536952;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-military-500 selection:text-white">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="bg-military-950 border-b border-military-800 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('encyclopedia')">
+                <div class="w-10 h-10 rounded bg-military-800 border border-military-600 flex items-center justify-center text-military-300 text-xl font-bold">
+                    <i class="fa-solid fa-plane-departure"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wider text-white uppercase flex items-center gap-2">
+                        <span id="ui-title">Catálogo Aeroespacial</span> <span class="text-military-400 text-xs px-2 py-0.5 rounded bg-military-900 border border-military-700" id="ui-badge">Feria de Ciencias</span>
+                    </h1>
+                    <p class="text-xs text-military-400 mono-font" id="ui-subtitle">Enciclopedia • Fotos Reales • Quiz Técnico • Simulador Espacial</p>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="flex flex-wrap items-center gap-2">
+                <button onclick="switchTab('encyclopedia')" id="nav-encyclopedia" class="px-4 py-2 rounded bg-military-800 text-white font-semibold border border-military-600 transition flex items-center gap-2 shadow">
+                    <i class="fa-solid fa-book-atlas"></i> <span id="ui-nav-catalog">Catálogo</span>
+                </button>
+                <button onclick="switchTab('quiz')" id="nav-quiz" class="px-4 py-2 rounded bg-military-900 hover:bg-military-800 text-military-300 hover:text-white font-semibold border border-military-800 transition flex items-center gap-2">
+                    <i class="fa-solid fa-brain"></i> <span id="ui-nav-quiz">Quiz Desafío</span>
+                </button>
+                <button onclick="switchTab('minigame')" id="nav-minigame" class="px-4 py-2 rounded bg-military-900 hover:bg-military-800 text-military-300 hover:text-white font-semibold border border-military-800 transition flex items-center gap-2">
+                    <i class="fa-solid fa-earth-americas"></i> <span id="ui-nav-game">Defensa Planetaria</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
+
+        <!-- ================= SECTION 1: ENCYCLOPEDIA ================= -->
+        <section id="tab-encyclopedia" class="space-y-6">
+            <!-- Search & Filters -->
+            <div class="bg-military-900/80 backdrop-blur border border-military-800 p-4 rounded-xl shadow-xl space-y-4">
+                <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div class="relative w-full md:w-96">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-military-400">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input type="text" id="searchInput" oninput="resetPaginationAndFilter()" placeholder="Buscar: F-16, Abrams, T-90, Spitfire, MiG-29..." class="w-full bg-military-950 border border-military-700 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder-military-500 focus:outline-none focus:border-military-400 text-sm">
+                    </div>
+
+                    <div class="flex items-center gap-3 text-sm mono-font bg-military-950 px-4 py-2 rounded-lg border border-military-800">
+                        <span class="text-military-400" id="ui-indexed-label">Modelos Indexados:</span>
+                        <span id="vehicleCounter" class="text-white font-bold text-base">0</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-military-800">
+                    <div>
+                        <label class="block text-xs font-semibold text-military-400 mb-1 uppercase tracking-wider" id="ui-country-label">País de Origen</label>
+                        <select id="filterCountry" onchange="resetPaginationAndFilter()" class="w-full bg-military-950 border border-military-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-military-400">
+                            <option value="ALL">🌎 Todos los Países</option>
+                            <option value="Estados Unidos">🇺🇸 Estados Unidos</option>
+                            <option value="Rusia y Unión Soviética">🇷🇺 Rusia y Unión Soviética</option>
+                            <option value="Alemania">🇩🇪 Alemania</option>
+                            <option value="Gran Bretaña">🇬🇧 Gran Bretaña</option>
+                            <option value="Francia">🇫🇷 Francia</option>
+                            <option value="Japón">🇯🇵 Japón</option>
+                            <option value="China">🇨🇳 China</option>
+                            <option value="Suecia">🇸🇪 Suecia</option>
+                            <option value="Italia">🇮🇹 Italia</option>
+                            <option value="Polonia">🇵🇱 Polonia</option>
+                            <option value="Taiwán">🇹🇼 Taiwán</option>
+                            <option value="Irán">🇮🇷 Irán</option>
+                            <option value="Israel">🇮🇱 Israel</option>
+                            <option value="Corea del Sur">🇰🇷 Corea del Sur</option>
+                            <option value="Corea del Norte">🇰🇵 Corea del Norte</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-military-400 mb-1 uppercase tracking-wider" id="ui-language-label"><i class="fa-solid fa-language"></i> Idioma / Language</label>
+                        <select id="languageSelect" onchange="updateSystemLanguage()" class="w-full bg-military-950 border border-military-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-military-400">
+                            <option value="es">Español (ES)</option>
+                            <option value="en">English (US/UK)</option>
+                            <option value="ru">Русский (RU)</option>
+                            <option value="de">Deutsch (DE)</option>
+                            <option value="fr">Français (FR)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicles Grid Container -->
+            <div id="vehicleGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+            <!-- Load More Button -->
+            <div id="loadMoreContainer" class="text-center py-4">
+                <button onclick="loadMoreVehicles()" class="bg-military-800 hover:bg-military-700 text-white font-semibold py-2.5 px-6 rounded-lg border border-military-600 transition shadow">
+                    <i class="fa-solid fa-circle-chevron-down mr-2"></i> <span id="ui-load-more">Cargar Más Vehículos</span>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 2: QUIZ MINIGAME ================= -->
+        <section id="tab-quiz" class="hidden max-w-3xl mx-auto space-y-6">
+            <div class="bg-military-900/90 border border-military-800 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+                <div class="flex flex-col md:flex-row justify-between items-center pb-6 border-b border-military-800 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-graduation-cap text-military-400"></i> <span id="ui-quiz-title">Desafío de Física y Aeronáutica</span>
+                        </h2>
+                        <p class="text-xs text-military-400 mono-font" id="ui-quiz-subtitle">Preguntas avanzadas de ingeniería, velocidad Mach, aerodinámica e historia.</p>
+                    </div>
+
+                    <div class="bg-military-950 px-4 py-3 rounded-xl border border-military-700 flex items-center gap-4 shadow-inner">
+                        <div class="text-right">
+                            <span class="block text-xs text-military-400 uppercase font-semibold" id="ui-score-label">Puntuación</span>
+                            <span id="quizScoreText" class="text-xl font-bold text-green-400 mono-font">0 Puntos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center my-4 text-xs font-semibold text-military-400 mono-font">
+                    <span id="quizProgressText">Pregunta 1 de 10</span>
+                </div>
+
+                <div id="quizContainer" class="py-6 space-y-6">
+                    <div class="bg-military-950 p-5 rounded-xl border border-military-800">
+                        <h3 id="quizQuestion" class="text-lg font-bold text-white text-center leading-relaxed">Cargando pregunta...</h3>
+                    </div>
+                    <div id="quizOptions" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+
+                <div id="quizFeedbackContainer" class="hidden pt-4 border-t border-military-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div id="quizFeedbackMessage" class="text-sm font-bold"></div>
+                    <button onclick="nextQuizQuestion()" class="w-full sm:w-auto bg-military-700 hover:bg-military-600 text-white px-6 py-2.5 rounded-lg font-semibold transition shadow flex items-center justify-center gap-2">
+                        <span id="ui-next-q">Siguiente Pregunta</span> <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 3: PLANETARY DEFENSE MINIGAME ================= -->
+        <section id="tab-minigame" class="hidden max-w-4xl mx-auto space-y-6">
+            <div class="bg-military-900/90 border border-military-800 rounded-2xl p-6 shadow-2xl relative">
+                <div class="flex flex-col md:flex-row justify-between items-center pb-4 border-b border-military-800 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-earth-americas text-blue-400"></i> <span id="ui-game-title">Protege el Planeta Tierra</span>
+                        </h2>
+                        <p class="text-xs text-military-400 mono-font" id="ui-game-subtitle">Mueve el escudo satelital con el ratón para interceptar los asteroides antes de que impacten la atmósfera.</p>
+                    </div>
+                    <div class="flex items-center gap-4 text-sm mono-font">
+                        <div class="bg-military-950 px-3 py-1.5 rounded-lg border border-military-800">
+                            <span id="ui-game-score-label">Asteroides Detenidos:</span> <span id="gameScore" class="text-green-400 font-bold">0</span>
+                        </div>
+                        <div class="bg-military-950 px-3 py-1.5 rounded-lg border border-military-800">
+                            <span id="ui-game-shield-label">Escudo:</span> <span id="gameLives" class="text-blue-400 font-bold">100%</span>
+                        </div>
+                        <button onclick="startGame()" id="startBtn" class="bg-military-700 hover:bg-military-600 text-white px-4 py-2 rounded-lg font-semibold transition shadow">
+                            <i class="fa-solid fa-play"></i> <span id="ui-game-btn">Iniciar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="relative mt-4 bg-military-950 rounded-xl overflow-hidden border border-military-800 flex justify-center items-center">
+                    <canvas id="gameCanvas" width="800" height="450" class="w-full max-w-full h-auto cursor-crosshair block"></canvas>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-military-950 border-t border-military-800 py-6 text-center text-xs text-military-500 mono-font">
+        <p id="ui-footer">Proyecto para Feria de Ciencias • Enciclopedia e Simulaciones Interactivas</p>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const rawCountryData = {
+            "Estados Unidos": [
+                "Curtiss Model D", "Wright Model B", "Curtiss JN-4 Jenny", "SPAD S.XIII", "Thomas-Morse S-4", "Martin MB-1", "Martin MB-2", "Boeing P-12", "Boeing P-26 Peashooter", "Curtiss P-36 Hawk", "Lockheed P-38 Lightning", "Bell P-39 Airacobra", "Curtiss P-40 Warhawk", "Republic P-47 Thunderbolt", "North American P-51 Mustang", "North American F-82 Twin Mustang", "Northrop P-61 Black Widow", "Bell P-63 Kingcobra", "Douglas A-20 Havoc", "Douglas A-26 Invader", "North American B-25 Mitchell", "Martin B-26 Marauder", "Boeing B-17 Flying Fortress", "Consolidated B-24 Liberator", "Boeing B-29 Superfortress", "Boeing B-50 Superfortress", "Convair B-36 Peacemaker", "Boeing B-47 Stratojet", "Boeing B-52 Stratofortress", "Convair B-58 Hustler", "General Dynamics F-111 Aardvark", "General Dynamics EF-111A Raven", "Lockheed F-117 Nighthawk", "Lockheed SR-71 Blackbird", "Lockheed U-2", "North American XB-70 Valkyrie", "Republic F-84 Thunderjet", "Republic F-84F Thunderstreak", "North American F-86 Sabre", "Lockheed F-94 Starfire", "Northrop F-89 Scorpion", "North American F-100 Super Sabre", "McDonnell F-101 Voodoo", "Convair F-102 Delta Dagger", "Lockheed F-104 Starfighter", "Republic F-105 Thunderchief", "Convair F-106 Delta Dart", "McDonnell Douglas F-4 Phantom II", "Northrop F-5 Freedom Fighter", "Douglas A-4 Skyhawk", "Grumman A-6 Intruder", "Grumman EA-6B Prowler", "LTV A-7 Corsair II", "Fairchild Republic A-10 Thunderbolt II", "Grumman F-14 Tomcat", "McDonnell Douglas F-15 Eagle", "McDonnell Douglas F-15E Strike Eagle", "Boeing F-15EX Eagle II", "General Dynamics F-16 Fighting Falcon", "General Dynamics F-16XL", "McDonnell Douglas F/A-18 Hornet", "Boeing F/A-18E/F Super Hornet", "Boeing EA-18G Growler", "Lockheed Martin F-22 Raptor", "Lockheed Martin F-35 Lightning II", "Northrop Grumman B-2 Spirit", "Northrop Grumman B-21 Raider", "Lockheed YF-12", "Bell X-1", "North American X-15", "Northrop YF-23", "Grumman X-29", "Rockwell-MBB X-31", "Northrop F-20 Tigershark", "M1917 Light Tank", "M2 Light Tank", "M2 Medium Tank", "M3 Stuart", "M3 Lee", "M4 Sherman", "M26 Pershing", "M24 Chaffee", "M41 Walker Bulldog", "M46 Patton", "M47 Patton", "M48 Patton", "M60 Patton", "M551 Sheridan", "M1 Abrams (tank)", "M1A1 Abrams", "M1A2 SEPv3", "M10 Booker", "T28 Super Heavy Tank", "T29 Heavy Tank", "MBT-70", "M2 Bradley", "M3 Bradley", "M113 armored personnel carrier", "M109 howitzer", "M270 Multiple Launch Rocket System", "M142 HIMARS", "Sikorsky R-4", "Bell 47", "Sikorsky H-19 Chickasaw", "Sikorsky CH-34 Choctaw", "Bell UH-1 Iroquois", "Bell AH-1 Cobra", "Boeing CH-47 Chinook", "Sikorsky CH-53 Sea Stallion", "Sikorsky UH-60 Black Hawk", "Boeing AH-64 Apache", "Bell OH-58 Kiowa", "Bell Boeing V-22 Osprey", "Sikorsky RAH-66 Comanche"
+            ],
+            "Rusia y Unión Soviética": [
+                "Ilya Muromets", "Sikorsky S-16", "Polikarpov I-15", "Polikarpov I-16", "Ilyushin Il-2 Sturmovik", "Ilyushin Il-10", "Lavochkin La-5", "Lavochkin La-7", "Yakovlev Yak-1", "Yakovlev Yak-3", "Yakovlev Yak-9", "Mikoyan-Gurevich MiG-3", "Petlyakov Pe-2", "Tupolev Tu-2", "Petlyakov Pe-8", "Tupolev Tu-4", "Mikoyan-Gurevich MiG-9", "Mikoyan-Gurevich MiG-15", "Mikoyan-Gurevich MiG-17", "Mikoyan-Gurevich MiG-19", "Mikoyan-Gurevich MiG-21", "Mikoyan-Gurevich MiG-23", "Mikoyan-Gurevich MiG-25", "Mikoyan-Gurevich MiG-27", "Mikoyan MiG-29", "Mikoyan MiG-31", "Mikoyan MiG-35", "Sukhoi Su-7", "Sukhoi Su-9", "Sukhoi Su-15", "Sukhoi Su-17", "Sukhoi Su-24", "Sukhoi Su-25", "Sukhoi Su-27", "Sukhoi Su-30", "Sukhoi Su-33", "Sukhoi Su-34", "Sukhoi Su-35", "Sukhoi Su-57", "Tupolev Tu-16", "Tupolev Tu-22", "Tupolev Tu-22M", "Tupolev Tu-95", "Tupolev Tu-142", "Tupolev Tu-160", "Sukhoi Su-47", "Mikoyan Project 1.44", "Sukhoi Su-75 Checkmate", "Yakovlev Yak-38", "Yakovlev Yak-141", "T-26 tank", "T-28 tank", "T-35 tank", "BT tank", "T-34 tank", "T-34-85", "KV-1 tank", "KV-2 tank", "IS-2 tank", "IS-3 tank", "T-44 tank", "T-54/T-55", "T-62", "T-64", "T-72", "T-80 tank", "T-90", "T-14 Armata", "IS-7", "BMP-1", "BMP-2", "BMP-3", "BMD-1", "BTR-60", "BTR-70", "BTR-80", "BTR-90", "Mil Mi-1", "Mil Mi-4", "Mil Mi-6", "Mil Mi-8", "Mil Mi-14", "Mil Mi-17", "Mil Mi-24", "Mil Mi-28", "Mil Mi-26", "Kamov Ka-25", "Kamov Ka-27", "Kamov Ka-50", "Kamov Ka-52"
+            ],
+            "Alemania": [
+                "Fokker Dr.I", "Fokker D.VII", "Albatros D.III", "Albatros D.V", "Junkers J.I", "Arado Ar 234", "Heinkel He 51", "Heinkel He 111", "Heinkel He 162", "Heinkel He 219", "Messerschmitt Bf 109", "Messerschmitt Bf 110", "Messerschmitt Me 163 Komet", "Messerschmitt Me 262", "Messerschmitt Me 410", "Focke-Wulf Fw 190", "Focke-Wulf Ta 152", "Junkers Ju 52", "Junkers Ju 87 Stuka", "Junkers Ju 88", "Dornier Do 17", "Dornier Do 335", "Henschel Hs 129", "Horten Ho 229", "Panavia Tornado", "Eurofighter Typhoon", "A7V", "Leichttraktor", "Panzer I", "Panzer II", "Panzer III", "Panzer IV", "Panther tank", "Tiger I", "Tiger II", "Panzer VIII Maus", "Nashorn", "Hetzer", "Jagdpanther", "Jagdtiger", "Sturmtiger", "Marder III", "Leopard 1", "Leopard 2", "Leopard 2A7", "KF51 Panther", "Marder (IFV)", "Puma (IFV)", "GTK Boxer", "Wiesel AWC", "MBB Bo 105", "Eurocopter Tiger"
+            ],
+            "Gran Bretaña": [
+                "Sopwith Pup", "Sopwith Camel", "S.E.5", "Bristol F.2 Fighter", "Gloster Gladiator", "Hawker Fury", "Hawker Hurricane", "Hawker Typhoon", "Hawker Tempest", "Hawker Sea Fury", "Supermarine Spitfire", "De Havilland Mosquito", "De Havilland Vampire", "Gloster Meteor", "English Electric Canberra", "English Electric Lightning", "Avro Lancaster", "Avro Vulcan", "Short Stirling", "Bristol Beaufighter", "Blackburn Buccaneer", "Hawker Siddeley Harrier", "Panavia Tornado", "Eurofighter Typhoon", "BAE Systems Tempest", "Mark I tank", "Medium Mark A Whippet", "Matilda I", "Matilda II", "Valentine tank", "Crusader tank", "Cromwell tank", "Comet tank", "Churchill tank", "TOG II", "Tortoise heavy assault tank", "Centurion tank", "Conqueror tank", "Chieftain tank", "Challenger 1", "Challenger 2", "Challenger 3", "FV101 Scorpion", "Warrior tracked armoured vehicle", "Westland Lynx", "AgustaWestland AW101", "Westland Sea King", "AgustaWestland AW159 Wildcat"
+            ],
+            "Francia": [
+                "SPAD S.XIII", "Nieuport 17", "Breguet 14", "Dewoitine D.520", "Morane-Saulnier MS.406", "Bloch MB.150", "Dassault Ouragan", "Dassault Mystère IV", "Dassault Super Étendard", "Dassault Mirage III", "Dassault Mirage IV", "Dassault Mirage 5", "Dassault Mirage F1", "Dassault Mirage 2000", "Dassault Rafale", "SEPECAT Jaguar", "Renault FT", "Schneider CA1", "Char B1", "AMX-13", "AMX-30", "Leclerc tank", "ARL 44", "AMX-50", "VAB (vehicule)", "VBCI", "Sud-Aviation Alouette II", "Aérospatiale Alouette III", "Aérospatiale SA 330 Puma", "Eurocopter AS532 Cougar", "Eurocopter Tiger"
+            ],
+            "Japón": [
+                "Mitsubishi A5M", "Mitsubishi A6M Zero", "Nakajima Ki-27", "Nakajima Ki-43", "Nakajima Ki-44", "Nakajima Ki-84", "Kawasaki Ki-61", "Kawasaki Ki-100", "Mitsubishi J2M", "Kawanishi N1K", "Mitsubishi G4M", "Nakajima B5N", "Aichi D3A", "Yokosuka D4Y", "Kyushu J7W Shinden", "Nakajima Kikka", "Mitsubishi F-1", "Mitsubishi F-2", "Mitsubishi X-2 Shinshin", "Type 89 I-Go medium tank", "Type 95 Ha-Go light tank", "Type 97 Chi-Ha medium tank", "Type 3 Chi-Nu medium tank", "Type 61 tank", "Type 74 tank", "Type 90 tank", "Type 10 tank", "Type 16 maneuver combat vehicle", "Kawasaki OH-1"
+            ],
+            "China": [
+                "Shenyang J-5", "Shenyang J-6", "Chengdu J-7", "Shenyang J-8", "Chengdu J-10", "Shenyang J-11", "Shenyang J-15", "Shenyang J-16", "Chengdu J-20", "Shenyang FC-31", "Nanchang Q-5", "Xian JH-7", "Xian H-6", "Type 59 tank", "Type 62 light tank", "Type 63 amphibious tank", "Type 69 tank", "Type 79 tank", "Type 88 tank", "Type 96 tank", "Type 99 tank", "VT-4 main battle tank", "Type 15 tank", "ZBD-04", "ZBL-08", "Changhe Z-10", "Harbin Z-19", "Harbin Z-20"
+            ],
+            "Suecia": [
+                "Saab 17", "Saab 18", "Saab 21", "Saab 21R", "Saab 29 Tunnan", "Saab 32 Lansen", "Saab 35 Draken", "Saab 37 Viggen", "Saab JAS 39 Gripen", "Stridsvagn m/42", "Stridsvagn 74", "Stridsvagn 103", "Stridsvagn 122", "Combat Vehicle 90"
+            ],
+            "Italia": [
+                "Fiat CR.32", "Fiat CR.42 Falco", "Macchi C.200 Saetta", "Macchi C.202 Folgore", "Macchi C.205 Veltro", "Reggiane Re.2000", "Savoia-Marchetti SM.79", "Fiat G.91", "AMX International AMX", "Eurofighter Typhoon", "Fiat 3000", "L3/35", "L6/40", "M13/40", "M15/42", "Carro Armato P 40", "Ariete", "B1 Centauro", "Agusta A129 Mangusta"
+            ],
+            "Polonia": [
+                "PZL P.7", "PZL P.11", "PZL P.24", "PZL.23 Karaś", "PZL.37 Łoś", "TK-3", "TKS", "7TP", "PT-91 Twardy", "PL-01", "PZL W-3 Sokół"
+            ],
+            "Taiwán": [
+                "AIDC AT-3", "AIDC F-CK-1 Ching-kuo", "AIDC T-5 Brave Eagle", "CM-11 Brave Tiger", "CM-12 tank"
+            ],
+            "Irán": [
+                "HESA Azarakhsh", "HESA Saeqeh", "IAIO Qaher-313", "Karrar (tank)", "Zulfiqar (tank)"
+            ],
+            "Israel": [
+                "IAI Nesher", "IAI Kfir", "IAI Lavi", "Sho't", "Magach", "Sabra (tank)", "Merkava"
+            ],
+            "Corea del Sur": [
+                "KAI KT-1 Woongbi", "KAI T-50 Golden Eagle", "KAI FA-50", "KAI KF-21 Boramae", "K1 tank", "K2 Black Panther", "KAI KUH-1 Surion"
+            ],
+            "Corea del Norte": [
+                "Chonma-ho", "Pokpung-ho", "M2020 tank"
+            ]
+        };
+
+        const translations = {
+            es: {
+                title: "Catálogo Aeroespacial",
+                badge: "Feria de Ciencias",
+                subtitle: "Enciclopedia • Fotos Reales • Quiz Técnico • Simulador Espacial",
+                navCatalog: "Catálogo",
+                navQuiz: "Quiz Desafío",
+                navGame: "Defensa Planetaria",
+                searchPlaceholder: "Buscar: F-16, Abrams, T-90, Spitfire, MiG-29...",
+                indexedLabel: "Modelos Indexados:",
+                countryLabel: "País de Origen",
+                languageLabel: "Idioma / Language",
+                loadMore: "Cargar Más Vehículos",
+                quizTitle: "Desafío de Física y Aeronáutica",
+                quizSubtitle: "Preguntas avanzadas de ingeniería, velocidad Mach, aerodinámica e historia.",
+                scoreLabel: "Puntuación",
+                nextQuestion: "Siguiente Pregunta",
+                gameTitle: "Protege el Planeta Tierra",
+                gameSubtitle: "Mueve el escudo satelital con el ratón para interceptar los asteroides antes de que impacten la atmósfera.",
+                gameScoreLabel: "Asteroides Detenidos:",
+                gameShieldLabel: "Escudo:",
+                gameBtn: "Iniciar",
+                footer: "Proyecto para Feria de Ciencias • Enciclopedia e Simulaciones Interactivas",
+                unitIndexed: "Unidad indexada de",
+                wikiBtn: "Ver en Wikipedia"
+            },
+            en: {
+                title: "Aerospace Catalog",
+                badge: "Science Fair",
+                subtitle: "Encyclopedia • Real Photos • Technical Quiz • Space Simulator",
+                navCatalog: "Catalog",
+                navQuiz: "Quiz Challenge",
+                navGame: "Planetary Defense",
+                searchPlaceholder: "Search: F-16, Abrams, T-90, Spitfire, MiG-29...",
+                indexedLabel: "Indexed Models:",
+                countryLabel: "Country of Origin",
+                languageLabel: "Language / Idioma",
+                loadMore: "Load More Vehicles",
+                quizTitle: "Physics & Aeronautics Challenge",
+                quizSubtitle: "Advanced questions on engineering, Mach speed, aerodynamics, and history.",
+                scoreLabel: "Score",
+                nextQuestion: "Next Question",
+                gameTitle: "Protect Planet Earth",
+                gameSubtitle: "Move the satellite shield with your mouse to intercept asteroids before they hit the atmosphere.",
+                gameScoreLabel: "Asteroids Stopped:",
+                gameShieldLabel: "Shield:",
+                gameBtn: "Start",
+                footer: "Science Fair Project • Interactive Encyclopedia & Simulations",
+                unitIndexed: "Indexed unit from",
+                wikiBtn: "View on Wikipedia"
+            },
+            ru: {
+                title: "Аэрокосмический Каталог",
+                badge: "Научная Ярмарка",
+                subtitle: "Энциклопедия • Реальные Фото • Техническая Викторина • Космический Симулятор",
+                navCatalog: "Каталог",
+                navQuiz: "Викторина",
+                navGame: "Защита Планеты",
+                searchPlaceholder: "Поиск: F-16, Абрамс, Т-90, Спитфайр, МиГ-29...",
+                indexedLabel: "Индексированные модели:",
+                countryLabel: "Страна происхождения",
+                languageLabel: "Язык / Language",
+                loadMore: "Загрузить еще",
+                quizTitle: "Физика и Аэронавтика",
+                quizSubtitle: "Сложные вопросы по инженерии, скорости Маха, аэродинамике и истории.",
+                scoreLabel: "Очки",
+                nextQuestion: "Следующий вопрос",
+                gameTitle: "Защитите Планету Земля",
+                gameSubtitle: "Перемещайте спутниковый щит мышью, чтобы перехватывать астероиды.",
+                gameScoreLabel: "Остановлено:",
+                gameShieldLabel: "Щит:",
+                gameBtn: "Старт",
+                footer: "Проект для Научной Ярмарки • Интерактивные Симуляции",
+                unitIndexed: "Единица из",
+                wikiBtn: "Смотреть в Википедии"
+            },
+            de: {
+                title: "Luftfahrt-Katalog",
+                badge: "Wissenschaftsmesse",
+                subtitle: "Enzyklopädie • Echte Fotos • Technisches Quiz • Weltraum-Simulator",
+                navCatalog: "Katalog",
+                navQuiz: "Quiz-Herausforderung",
+                navGame: "Planetenverteidigung",
+                searchPlaceholder: "Suche: F-16, Abrams, T-90, Spitfire, MiG-29...",
+                indexedLabel: "Indizierte Modelle:",
+                countryLabel: "Herkunftsland",
+                languageLabel: "Sprache / Language",
+                loadMore: "Mehr Fahrzeuge laden",
+                quizTitle: "Physik & Luftfahrt Herausforderung",
+                quizSubtitle: "Fortgeschrittene Fragen zu Technik, Mach-Geschwindigkeit, Aerodynamik und Geschichte.",
+                scoreLabel: "Punkte",
+                nextQuestion: "Nächste Frage",
+                gameTitle: "Schütze die Erde",
+                gameSubtitle: "Bewege den Satellitenschild mit der Maus, um Asteroiden abzufangen.",
+                gameScoreLabel: "Gestoppt:",
+                gameShieldLabel: "Schild:",
+                gameBtn: "Starten",
+                footer: "Projekt für die Wissenschaftsmesse • Interaktive Simulationen",
+                unitIndexed: "Indizierte Einheit aus",
+                wikiBtn: "Auf Wikipedia ansehen"
+            },
+            fr: {
+                title: "Catalogue Aérospatial",
+                badge: "Foire aux Sciences",
+                subtitle: "Encyclopédie • Vraies Photos • Quiz Technique • Simulateur Spatial",
+                navCatalog: "Catalogue",
+                navQuiz: "Défi Quiz",
+                navGame: "Défense Planétaire",
+                searchPlaceholder: "Rechercher: F-16, Abrams, T-90, Spitfire, MiG-29...",
+                indexedLabel: "Modèles Indexés:",
+                countryLabel: "Pays d'Origine",
+                languageLabel: "Langue / Language",
+                loadMore: "Charger Plus de Véhicules",
+                quizTitle: "Défi Physique et Aéronautique",
+                quizSubtitle: "Questions avancées sur l'ingénierie, la vitesse Mach, l'aérodynamique et l'histoire.",
+                scoreLabel: "Score",
+                nextQuestion: "Question Suivante",
+                gameTitle: "Protégez la Terre",
+                gameSubtitle: "Déplacez le bouclier satellite avec la souris pour intercepter les astéroïdes.",
+                gameScoreLabel: "Astéroïdes Stoppés:",
+                gameShieldLabel: "Bouclier:",
+                gameBtn: "Commencer",
+                footer: "Projet pour la Foire aux Sciences • Simulations Interactives",
+                unitIndexed: "Unité indexée de",
+                wikiBtn: "Voir sur Wikipédia"
+            }
+        };
+
+        const countryTranslations = {
+            es: { "Estados Unidos": "Estados Unidos", "Rusia y Unión Soviética": "Rusia y URSS", "Alemania": "Alemania", "Gran Bretaña": "Gran Bretaña", "Francia": "Francia", "Japón": "Japón", "China": "China", "Suecia": "Suecia", "Italia": "Italia", "Polonia": "Polonia", "Taiwán": "Taiwán", "Irán": "Irán", "Israel": "Israel", "Corea del Sur": "Corea del Sur", "Corea del Norte": "Corea del Norte" },
+            en: { "Estados Unidos": "United States", "Rusia y Unión Soviética": "Russia & USSR", "Alemania": "Germany", "Gran Bretaña": "Great Britain", "Francia": "France", "Japón": "Japan", "China": "China", "Suecia": "Sweden", "Italia": "Italy", "Polonia": "Poland", "Taiwán": "Taiwan", "Irán": "Iran", "Israel": "Israel", "Corea del Sur": "South Korea", "Corea del Norte": "North Korea" },
+            ru: { "Estados Unidos": "США", "Rusia y Unión Soviética": "Россия и СССР", "Alemania": "Германия", "Gran Bretaña": "Великобритания", "Francia": "Франция", "Japón": "Япония", "China": "Китай", "Suecia": "Швеция", "Italia": "Италия", "Polonia": "Польша", "Taiwán": "Тайвань", "Irán": "Иран", "Israel": "Израиль", "Corea del Sur": "Южная Корея", "Corea del Norte": "Северная Корея" },
+            de: { "Estados Unidos": "Vereinigte Staaten", "Rusia y Unión Soviética": "Russland & UdSSR", "Alemania": "Deutschland", "Gran Bretaña": "Großbritannien", "Francia": "Frankreich", "Japón": "Japan", "China": "China", "Suecia": "Schweden", "Italia": "Italien", "Polonia": "Polen", "Taiwán": "Taiwan", "Irán": "Iran", "Israel": "Israel", "Corea del Sur": "Südkorea", "Corea del Norte": "Nordkorea" },
+            fr: { "Estados Unidos": "États-Unis", "Rusia y Unión Soviética": "Russie & URSS", "Alemania": "Allemagne", "Gran Bretaña": "Grande-Bretagne", "Francia": "France", "Japón": "Japon", "China": "Chine", "Suecia": "Suède", "Italia": "Italie", "Polonia": "Pologne", "Taiwán": "Taïwan", "Irán": "Iran", "Israel": "Israël", "Corea del Sur": "Corée du Sud", "Corea del Norte": "Corée du Nord" }
+        };
+
+        let allVehicles = [];
+        let filteredVehicles = [];
+        let currentPage = 1;
+        const pageSize = 24;
+        let currentLang = 'es';
+
+        // Pre-build consolidated list
+        Object.keys(rawCountryData).forEach(country => {
+            rawCountryData[country].forEach(name => {
+                allVehicles.push({ name: name, country: country });
+            });
+        });
+
+        function updateSystemLanguage() {
+            currentLang = document.getElementById('languageSelect').value;
+            const t = translations[currentLang];
+
+            document.getElementById('ui-title').textContent = t.title;
+            document.getElementById('ui-badge').textContent = t.badge;
+            document.getElementById('ui-subtitle').textContent = t.subtitle;
+            document.getElementById('ui-nav-catalog').textContent = t.navCatalog;
+            document.getElementById('ui-nav-quiz').textContent = t.navQuiz;
+            document.getElementById('ui-nav-game').textContent = t.navGame;
+            document.getElementById('searchInput').placeholder = t.searchPlaceholder;
+            document.getElementById('ui-indexed-label').textContent = t.indexedLabel;
+            document.getElementById('ui-country-label').textContent = t.countryLabel;
+            document.getElementById('ui-language-label').innerHTML = `<i class="fa-solid fa-language"></i> ${t.languageLabel}`;
+            document.getElementById('ui-load-more').textContent = t.loadMore;
+            document.getElementById('ui-quiz-title').textContent = t.quizTitle;
+            document.getElementById('ui-quiz-subtitle').textContent = t.quizSubtitle;
+            document.getElementById('ui-score-label').textContent = t.scoreLabel;
+            document.getElementById('ui-next-q').textContent = t.nextQuestion;
+            document.getElementById('ui-game-title').textContent = t.gameTitle;
+            document.getElementById('ui-game-subtitle').textContent = t.gameSubtitle;
+            document.getElementById('ui-game-score-label').textContent = t.gameScoreLabel;
+            document.getElementById('ui-game-shield-label').textContent = t.gameShieldLabel;
+            document.getElementById('ui-game-btn').textContent = t.gameBtn;
+            document.getElementById('ui-footer').textContent = t.footer;
+
+            resetPaginationAndFilter();
+        }
+
+        function resetPaginationAndFilter() {
+            currentPage = 1;
+            filterVehicles();
+        }
+
+        function filterVehicles() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const country = document.getElementById('filterCountry').value;
+
+            filteredVehicles = allVehicles.filter(item => {
+                const matchCountry = (country === 'ALL' || item.country === country);
+                const matchSearch = item.name.toLowerCase().includes(search);
+                return matchCountry && matchSearch;
+            });
+
+            document.getElementById('vehicleCounter').textContent = filteredVehicles.length;
+            renderGrid();
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('vehicleGrid');
+            if (currentPage === 1) grid.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = currentPage * pageSize;
+            const pageItems = filteredVehicles.slice(startIndex, endIndex);
+            const t = translations[currentLang];
+
+            pageItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-military-900 border border-military-800 rounded-xl overflow-hidden shadow-lg hover:border-military-600 transition flex flex-col";
+                const translatedCountry = countryTranslations[currentLang][item.country] || item.country;
+                const uniqueId = "img-" + Math.random().toString(36).substring(2, 9);
+                
+                card.innerHTML = `
+                    <div class="h-44 overflow-hidden bg-black relative flex items-center justify-center">
+                        <img id="${uniqueId}" src="https://images.unsplash.com/photo-1517976487492-5750f3195933?w=500&auto=format&fit=crop&q=60" alt="${item.name}" class="w-full h-full object-cover">
+                        <span class="absolute top-2 right-2 bg-military-950/80 text-white text-xs px-2 py-1 rounded border border-military-700">${translatedCountry}</span>
+                    </div>
+                    <div class="p-4 flex-grow flex flex-col justify-between space-y-3">
+                        <div>
+                            <h3 class="text-base font-bold text-white">${item.name}</h3>
+                            <p class="text-xs text-military-400 mt-1">${t.unitIndexed} ${translatedCountry}.</p>
+                        </div>
+                        <a href="https://${currentLang}.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(item.name)}" target="_blank" class="w-full text-center bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-3 rounded text-xs transition flex items-center justify-center gap-2">
+                            <i class="fa-brands fa-wikipedia-w"></i> ${t.wikiBtn}
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+                fetchWikiImage(item.name, item.country, uniqueId);
+            });
+
+            const btnContainer = document.getElementById('loadMoreContainer');
+            if (endIndex >= filteredVehicles.length) {
+                btnContainer.classList.add('hidden');
+            } else {
+                btnContainer.classList.remove('hidden');
+            }
+        }
+
+        function loadMoreVehicles() {
+            currentPage++;
+            renderGrid();
+        }
+
+        async function fetchWikiImage(searchTerm, country, imgElementId) {
+            try {
+                let cleanTerm = searchTerm.replace(/ *\([^)]*\)/g, "").trim();
+                let response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cleanTerm)}`);
+                
+                if (!response.ok) {
+                    const contextSearch = `${cleanTerm} ${country}`;
+                    response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(contextSearch)}`);
+                }
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.thumbnail && data.thumbnail.source) {
+                        const img = document.getElementById(imgElementId);
+                        if (img) img.src = data.thumbnail.source;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        // --- HARD & EXTENDED QUIZ ---
+        const quizData = [
+            { q: "¿A qué velocidad equivale aproximadamente Mach 1 a nivel del mar?", options: ["343 m/s (1235 km/h)", "500 m/s (1800 km/h)", "299 m/s (1076 km/h)", "700 m/s (2500 km/h)"], answer: 0 },
+            { q: "¿Qué efecto físico permite a las alas de un avión generar sustentación?", options: ["Efecto Joule", "Principio de Bernoulli", "Ley de Ampère", "Efecto Doppler"], answer: 1 },
+            { q: "¿Cuál fue el primer avión supersónico en romper la barrera del sonido en 1947?", options: ["Bell X-1", "F-86 Sabre", "SR-71 Blackbird", "Concorde"], answer: 0 },
+            { q: "¿Qué material se utilizó principalmente en el SR-71 debido a las altas temperaturas del rozamiento del aire?", options: ["Aluminio", "Titanio", "Fibra de carbono", "Acero inoxidable"], answer: 1 },
+            { q: "¿Qué fenómeno ocurre cuando un objeto supera la velocidad del sonido?", options: ["Sombra de radar", "Explosión sónica (Sonic Boom)", "Efecto Venturi", "Resonancia magnética"], answer: 1 },
+            { q: "¿Qué significa que un avión tenga diseño 'Stealth' o sigiloso?", options: ["Que es invisible al ojo humano", "Reducción de la firma de radar e infrarroja", "Que no emite sonido alguno", "Que puede volar al espacio"], answer: 1 },
+            { q: "¿Cuál es el motor de reacción que no tiene partes móviles y requiere altas velocidades para funcionar?", options: ["Turbofán", "Ramjet / Scramjet", "Turbohélice", "Pistón rotativo"], answer: 1 },
+            { q: "¿A qué altitud aproximada comienza formalmente el espacio exterior (Línea de Kármán)?", options: ["50 km", "100 km", "200 km", "12 km"], answer: 1 },
+            { q: "¿Qué fuerza opone resistencia al movimiento de una aeronave a través del aire?", options: ["Sustentación", "Empuje", "Arrastre (Drag)", "Gravedad"], answer: 2 },
+            { q: "¿Qué sistema de control de vuelo moderno utiliza computadoras para corregir la estabilidad inestable de los cazas?", options: ["Fly-by-wire", "Control por cable hidráulico", "Piloto mecánico", "Giroscopio de masa"], answer: 0 }
+        ];
+
+        let quizIndex = 0;
+        let quizScore = 0;
+
+        function initQuiz() {
+            quizIndex = 0;
+            quizScore = 0;
+            showQuizQuestion();
+        }
+
+        function showQuizQuestion() {
+            const q = quizData[quizIndex];
+            document.getElementById('quizProgressText').textContent = `Pregunta ${quizIndex + 1} de ${quizData.length}`;
+            document.getElementById('quizScoreText').textContent = `${quizScore} Puntos`;
+            document.getElementById('quizQuestion').textContent = q.q;
+
+            const opts = document.getElementById('quizOptions');
+            opts.innerHTML = '';
+            document.getElementById('quizFeedbackContainer').classList.add('hidden');
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3 rounded-lg bg-military-950 border border-military-700 hover:bg-military-800 text-white text-sm transition";
+                btn.textContent = opt;
+                btn.onclick = () => checkQuizAnswer(idx, btn);
+                opts.appendChild(btn);
+            });
+        }
+
+        function checkQuizAnswer(idx, btn) {
+            const q = quizData[quizIndex];
+            const buttons = document.getElementById('quizOptions').children;
+            for (let b of buttons) b.disabled = true;
+
+            const feedback = document.getElementById('quizFeedbackMessage');
+            if (idx === q.answer) {
+                quizScore += 10;
+                btn.classList.add('bg-green-700');
+                feedback.textContent = "¡Correcto! Excelente deducción científica.";
+                feedback.className = "text-green-400 font-bold";
+            } else {
+                btn.classList.add('bg-red-700');
+                buttons[q.answer].classList.add('bg-green-700');
+                feedback.textContent = "Incorrecto. La respuesta adecuada era la destacada en verde.";
+                feedback.className = "text-red-400 font-bold";
+            }
+            document.getElementById('quizFeedbackContainer').classList.remove('hidden');
+        }
+
+        function nextQuizQuestion() {
+            quizIndex++;
+            if (quizIndex < quizData.length) {
+                showQuizQuestion();
+            } else {
+                document.getElementById('quizQuestion').textContent = `¡Quiz Completado! Obtuviste ${quizScore} de ${quizData.length * 10} puntos.`;
+                document.getElementById('quizOptions').innerHTML = '';
+                document.getElementById('quizFeedbackContainer').classList.add('hidden');
+            }
+        }
+
+        // --- PLANETARY DEFENSE GAME ---
+        let canvas, ctx;
+        let gameRunning = false;
+        let score = 0, lives = 100;
+        let shieldAngle = 0;
+        let asteroids = [];
+
+        function startGame() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            score = 0;
+            lives = 100;
+            asteroids = [];
+            gameRunning = true;
+
+            document.getElementById('gameScore').textContent = score;
+            document.getElementById('gameLives').textContent = lives + '%';
+
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const mx = e.clientX - rect.left - canvas.width / 2;
+                const my = e.clientY - rect.top - canvas.height / 2;
+                shieldAngle = Math.atan2(my, mx);
+            });
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            ctx.fillStyle = '#050805';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            // Earth
+            ctx.beginPath();
+            ctx.arc(cx, cy, 40, 0, Math.PI * 2);
+            ctx.fillStyle = '#3b82f6';
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#60a5fa';
+            ctx.stroke();
+
+            // Shield
+            ctx.beginPath();
+            ctx.arc(cx, cy, 60, shieldAngle - 0.5, shieldAngle + 0.5);
+            ctx.lineWidth = 8;
+            ctx.strokeStyle = '#22c55e';
+            ctx.stroke();
+
+            // Spawn asteroids
+            if (Math.random() < 0.03) {
+                const spawnAngle = Math.random() * Math.PI * 2;
+                asteroids.push({
+                    x: cx + Math.cos(spawnAngle) * 400,
+                    y: cy + Math.sin(spawnAngle) * 400,
+                    speed: 1.5 + Math.random() * 1.5
+                });
+            }
+
+            // Update & draw asteroids
+            for (let i = asteroids.length - 1; i >= 0; i--) {
+                let a = asteroids[i];
+                let angle = Math.atan2(cy - a.y, cx - a.x);
+                a.x += Math.cos(angle) * a.speed;
+                a.y += Math.sin(angle) * a.speed;
+
+                ctx.beginPath();
+                ctx.arc(a.x, a.y, 6, 0, Math.PI * 2);
+                ctx.fillStyle = '#f97316';
+                ctx.fill();
+
+                let dist = Math.hypot(cx - a.x, cy - a.y);
+
+                // Shield hit check
+                if (dist <= 64 && dist >= 52) {
+                    let aAngle = Math.atan2(a.y - cy, a.x - cx);
+                    let diff = Math.abs(shieldAngle - aAngle);
+                    if (diff < 0.5 || diff > Math.PI * 2 - 0.5) {
+                        score += 1;
+                        document.getElementById('gameScore').textContent = score;
+                        asteroids.splice(i, 1);
+                        continue;
+                    }
+                }
+
+                // Earth hit check
+                if (dist <= 40) {
+                    lives -= 10;
+                    document.getElementById('gameLives').textContent = Math.max(0, lives) + '%';
+                    asteroids.splice(i, 1);
+                    if (lives <= 0) {
+                        gameRunning = false;
+                        alert('¡El escudo colapsó! Puntuación final: ' + score);
+                    }
+                }
+            }
+
+            if (gameRunning) requestAnimationFrame(gameLoop);
+        }
+
+        function switchTab(tabId) {
+            document.getElementById('tab-encyclopedia').classList.add('hidden');
+            document.getElementById('tab-quiz').classList.add('hidden');
+            document.getElementById('tab-minigame').classList.add('hidden');
+
+            if (tabId === 'encyclopedia') document.getElementById('tab-encyclopedia').classList.remove('hidden');
+            if (tabId === 'quiz') { document.getElementById('tab-quiz').classList.remove('hidden'); initQuiz(); }
+            if (tabId === 'minigame') document.getElementById('tab-minigame').classList.remove('hidden');
+        }
+
+        // Initialize system language & filters
+        updateSystemLanguage();
+    </script>
+</body>
+</html>
